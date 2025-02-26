@@ -2256,6 +2256,7 @@ size_t Audio::process_m3u8_ID3_Header(uint8_t* packet){
 }
 //---------------------------------------------------------------------------------------------------------------------
 uint32_t Audio::stopSong() {
+    m_f_playbackStarted = false;
     uint32_t pos = 0;
     if(m_f_running) {
         m_f_running = false;
@@ -3418,6 +3419,14 @@ void Audio::processWebStreamHLS() {
 }
 //---------------------------------------------------------------------------------------------------------------------
 void Audio::playAudioData(){
+    if(m_f_playing && !m_f_playbackStarted) {
+        m_f_playbackStarted = true;
+        char msg[80];
+        log_i("Audio started playing: %s, %d Hz, %d bit, %s", 
+                getCodecname(), getSampleRate(), getBitsPerSample(), 
+                getChannels() == 1 ? "Mono" : "Stereo");
+        if(audio_playback_start) audio_playback_start(msg);
+    }
 
     if(InBuff.bufferFilled() < InBuff.getMaxBlockSize()) return; // guard
 
